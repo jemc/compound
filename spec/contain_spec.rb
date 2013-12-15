@@ -30,14 +30,14 @@ describe Contain::Host do
   end
   
   it "gives first priority to methods actually defined in the container" do
-    subject.singleton_class.send(:define_method, :foo) { |*args| 'container method'}
+    subject.define_singleton_method(:foo) { |*args| 'container method'}
     
     comp_foo.should_not_receive(:foo)
     subject.foo(*args, &proc_arg).should eq 'container method'
   end
   
   it "pretends to respond_to methods which it does not actually define" do
-    subject.singleton_class.send(:define_method, :container_method) { |*args| }
+    subject.define_singleton_method(:container_method) { |*args| }
     
     subject.methods.should_not include :foo
     subject.methods.should_not include :bar

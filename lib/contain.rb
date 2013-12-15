@@ -42,16 +42,16 @@ module Contain
     
     # @api private
     def self.guard mod
-      mod.send :define_method, :extended do |obj|
+      mod.define_singleton_method :extended do |obj|
         ::Contain::Guard.warn_about self unless obj.is_a? ::Contain::Component
       end
-      mod.send :define_method, :included do |_|
+      mod.define_singleton_method :included do |_|
         ::Contain::Guard.warn_about self
       end
     end
     
     def self.included mod
-      guard mod.singleton_class
+      guard mod
     end
   end
   
