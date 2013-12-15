@@ -30,11 +30,24 @@ describe Contain::Container do
   end
   
   it "gives first priority to methods actually defined in the container" do
-    subject.singleton_class.send(:define_method, :container_method) {}
+    subject.singleton_class.send(:define_method, :foo) { |*args| 'container method'}
     
     comp_foo.should_not_receive(:foo)
-    subject.should_receive(:foo).with *args, &proc_arg
-    subject.foo *args, &proc_arg
+    subject.foo(*args, &proc_arg).should eq 'container method'
+  end
+  
+  it "pretends to respond_to methods which is does not actually define" do
+    subject.singleton_class.send(:define_method, :container_method) { |*args| }
+    
+    subject.methods.should_not include :foo
+    subject.methods.should_not include :bar
+    subject.methods.should     include :container_method
+    subject.methods.should_not include :undefined
+    
+    subject.should     respond_to :foo
+    subject.should     respond_to :bar
+    subject.should     respond_to :container_method
+    subject.should_not respond_to :undefined
   end
   
 end

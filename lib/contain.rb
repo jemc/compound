@@ -2,15 +2,20 @@
 module Contain
   
   module Container
+    def contain mod
+      @_container_parts ||= []
+      @_container_parts.unshift ::Contain::Component.new self, mod
+    end
+    
     def method_missing sym, *args, &block
       component = @_container_parts && 
                   @_container_parts.detect { |obj| obj.respond_to? sym }
       component ? (component.send sym, *args, &block) : super
     end
     
-    def contain mod
-      @_container_parts ||= []
-      @_container_parts.unshift ::Contain::Component.new self, mod
+    def respond_to? sym
+      super || !!(@_container_parts && 
+                  @_container_parts.detect { |obj| obj.respond_to? sym })
     end
   end
   
