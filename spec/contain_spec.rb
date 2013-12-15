@@ -73,6 +73,21 @@ describe Contain::Host do
     ->{subject.method(:undefined)}.should raise_error NameError, /undefined method/
   end
   
+  it "uses late binding and search to find forwardable methods" do
+    comp_foo
+    
+    subject.foo.should eq 'foo'
+    ->{subject.other}.should raise_error
+    
+    mod_foo.class_eval do
+      remove_method :foo
+      def other(*args) 'other' end
+    end
+    
+    ->{subject.foo}.should raise_error
+    subject.other.should eq 'other'
+  end
+  
 end
 
 
