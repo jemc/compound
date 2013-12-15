@@ -4,9 +4,8 @@ require 'contain'
 require 'spec_helper'
 
 
-describe Contain::Host do
+shared_examples "a contain host" do
   
-  let(:subject)  { Object.new.extend Contain::Host }
   let(:contained) { subject.instance_variable_get :@_contain_host_parts }
   
   let(:mod_foo)  { Module.new.tap{|m| m.class_eval{ def foo(*args) 'foo' end }}}
@@ -157,6 +156,15 @@ describe Contain::Host do
   
 end
 
+describe Contain::Host do
+  it_behaves_like "a contain host"
+end
+
+describe Contain::Hosting do
+  let(:subject)  { Object.new.extend Contain::Hosting }
+  it_behaves_like "a contain host"
+end
+
 
 describe Contain::Part do
   
@@ -212,7 +220,7 @@ end
 describe Contain::GuardAgainst do
   
   let(:guarded) { module Guarded; include Contain::GuardAgainst end; Guarded }
-  let(:obj) { Object.new.extend Contain::Host }
+  let(:obj) { Object.new.extend Contain::Hosting }
   let(:mod) { Module.new }
   
   it "warns when you try to contain with a guarded object" do

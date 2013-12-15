@@ -1,7 +1,7 @@
 
 module Contain
   
-  module Host
+  module Hosting
     def contain mod
       @_contain_host_parts ||= []
       @_contain_host_parts.unshift ::Contain::Part.new self, mod
@@ -26,6 +26,10 @@ module Contain
       component ? component.method(sym) :
         raise(NameError, "undefined method `#{sym}' for object `#{self}'")
     end
+  end
+  
+  class Host
+    include Hosting
   end
   
 end
