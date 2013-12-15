@@ -4,9 +4,9 @@ require 'contain'
 require 'spec_helper'
 
 
-describe Contain::Container do
+describe Contain::Host do
   
-  let(:subject)  { Object.new.extend Contain::Container }
+  let(:subject)  { Object.new.extend Contain::Host }
   
   let(:mod_foo)  { module Foo; def foo(*args) 'foo' end end; Foo }
   let(:mod_bar)  { module Bar; def bar(*args) 'bar' end end; Bar }
@@ -16,7 +16,7 @@ describe Contain::Container do
   let!(:comp_bar) { subject.contain mod_bar
                     contained.detect{|x| x.respond_to? :bar } }
   
-  let(:contained) { subject.instance_variable_get :@_container_parts }
+  let(:contained) { subject.instance_variable_get :@_contain_host_parts }
   
   let(:args) { [1,2,3,kw:5,kw2:6] }
   let(:proc_arg) { Proc.new{nil} }

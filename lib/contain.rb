@@ -1,21 +1,21 @@
 
 module Contain
   
-  module Container
+  module Host
     def contain mod
-      @_container_parts ||= []
-      @_container_parts.unshift ::Contain::Component.new self, mod
+      @_contain_host_parts ||= []
+      @_contain_host_parts.unshift ::Contain::Component.new self, mod
     end
     
     def method_missing sym, *args, &block
-      component = @_container_parts && 
-                  @_container_parts.detect { |obj| obj.respond_to? sym }
+      component = @_contain_host_parts && 
+                  @_contain_host_parts.detect { |obj| obj.respond_to? sym }
       component ? (component.send sym, *args, &block) : super
     end
     
     def respond_to? sym
-      super || !!(@_container_parts && 
-                  @_container_parts.detect { |obj| obj.respond_to? sym })
+      super || !!(@_contain_host_parts && 
+                  @_contain_host_parts.detect { |obj| obj.respond_to? sym })
     end
   end
   
@@ -36,7 +36,7 @@ module Contain
     def self.warn_about obj
       warn "WARNING\n"\
            "#{obj} is intended only for use in a Contain::Component.\n"\
-           "Please use Contain::Container#contain instead of #extend or #include.\n"\
+           "Please use Contain::Host#contain instead of #extend or #include.\n"\
            "\n"
     end
     
