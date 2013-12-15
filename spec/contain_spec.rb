@@ -207,3 +207,23 @@ describe Contain::Guard do
   end
 
 end
+
+
+describe Contain::GuardAgainst do
+  
+  let(:guarded) { module Guarded; include Contain::GuardAgainst end; Guarded }
+  let(:obj) { Object.new.extend Contain::Host }
+  let(:mod) { Module.new }
+  
+  it "warns when you try to contain with a guarded object" do
+    subject.should_receive :warn_about
+    obj.contain guarded
+  end
+  
+  it "can warn about any object" do
+    str = obj.to_s
+    subject.should_receive(:warn).with(/#{obj}/)
+    subject.warn_about str
+  end
+
+end
