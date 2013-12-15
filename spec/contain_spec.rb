@@ -36,7 +36,7 @@ describe Contain::Host do
     subject.foo(*args, &proc_arg).should eq 'container method'
   end
   
-  it "pretends to respond_to methods which is does not actually define" do
+  it "pretends to respond_to methods which it does not actually define" do
     subject.singleton_class.send(:define_method, :container_method) { |*args| }
     
     subject.methods.should_not include :foo
