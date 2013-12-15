@@ -12,32 +12,32 @@ describe Contain::Host do
   let(:mod_foo)  { Module.new.tap{|m| m.class_eval{ def foo(*args) 'foo' end }}}
   let(:mod_bar)  { Module.new.tap{|m| m.class_eval{ def bar(*args) 'bar' end }}}
   
-  let(:comp_foo) { subject.contain mod_foo
+  let(:part_foo) { subject.contain mod_foo
                     contained.detect{|x| x.respond_to? :foo } }
-  let(:comp_bar) { subject.contain mod_bar
+  let(:part_bar) { subject.contain mod_bar
                     contained.detect{|x| x.respond_to? :bar } }
   
   let(:args) { [1,2,3,kw:5,kw2:6] }
   let(:proc_arg) { Proc.new{nil} }
   
   it "can contain modules" do
-    comp_foo.singleton_class.ancestors.should include mod_foo
-    comp_bar.singleton_class.ancestors.should include mod_bar
+    part_foo.singleton_class.ancestors.should include mod_foo
+    part_bar.singleton_class.ancestors.should include mod_bar
     
-    comp_foo.should be_a Contain::Component
-    comp_bar.should be_a Contain::Component
+    part_foo.should be_a Contain::Part
+    part_bar.should be_a Contain::Part
     
-    contained.should match_array [comp_foo, comp_bar]
+    contained.should match_array [part_foo, part_bar]
   end
   
   it "calls the .contained method of the module if it is defined" do
     mod_foo.should_receive(:contained).with(subject)
-    comp_foo
+    part_foo
   end
   
   it "forwards methods to the contained objects which respond_to them" do
-    comp_foo.should_receive(:foo).with *args, &proc_arg
-    comp_bar.should_receive(:bar).with *args.reverse, &proc_arg
+    part_foo.should_receive(:foo).with *args, &proc_arg
+    part_bar.should_receive(:bar).with *args.reverse, &proc_arg
     
     subject.foo *args, &proc_arg
     subject.bar *args.reverse, &proc_arg
@@ -46,13 +46,13 @@ describe Contain::Host do
   it "gives first priority to methods actually defined in the container" do
     subject.define_singleton_method(:foo) { |*args| 'container method'}
     
-    comp_foo.should_not_receive(:foo)
+    part_foo.should_not_receive(:foo)
     subject.foo(*args, &proc_arg).should eq 'container method'
   end
   
   it "pretends to respond_to methods which it does not actually define" do
-    comp_foo
-    comp_bar
+    part_foo
+    part_bar
     subject.define_singleton_method(:container_method) { |*args| }
     
     subject.methods.should_not include :foo
@@ -67,8 +67,8 @@ describe Contain::Host do
   end
   
   it "can retrieve the method object for its forwarded methods" do
-    comp_foo
-    comp_bar
+    part_foo
+    part_bar
     subject.define_singleton_method(:container_method) { |*args| }
     
     subject.method(:foo)             .owner.should eq mod_foo
@@ -79,7 +79,7 @@ describe Contain::Host do
   end
   
   it "uses late binding and search to find forwardable methods" do
-    comp_foo
+    part_foo
     
     subject.foo.should eq 'foo'
     ->{subject.other}.should raise_error NoMethodError
@@ -94,31 +94,31 @@ describe Contain::Host do
   end
   
   it "forwards to the more recently contained object when methods conflict" do
-    comp_foo
-    comp_bar
+    part_foo
+    part_bar
     mod_bar.class_eval { def foo(*args) 'bar_foo' end }
     
     subject.foo.should eq 'bar_foo'
   end
   
   it "does not know about private methods of contained objects" do
-    comp_foo
+    part_foo
     mod_foo.class_eval { private; def private_method; end }
     
     ->{subject.private_method}.should raise_error NoMethodError
   end
   
   it "allows contained objects implicit access to eachother's public methods" do
-    comp_foo
-    comp_bar
+    part_foo
+    part_bar
     mod_bar.class_eval { def other(*args) foo end }
     
     subject.other.should eq 'foo'
   end
   
   it "does not intersend the private methods of contained objects" do
-    comp_foo
-    comp_bar
+    part_foo
+    part_bar
     mod_foo.class_eval { def foo(*args) private_foo end }
     mod_bar.class_eval { def bar(*args) private_foo end }
     mod_foo.class_eval { private; def private_foo(*args) 'priv_foo' end }
@@ -128,8 +128,8 @@ describe Contain::Host do
   end
   
   it "allows contained objects to all have their own version of a private method" do
-    comp_foo
-    comp_bar
+    part_foo
+    part_bar
     mod_foo.class_eval { def foo(*args) private_meth end }
     mod_bar.class_eval { def bar(*args) private_meth end }
     mod_foo.class_eval { private; def private_meth(*args) 'priv_foo' end }
@@ -140,27 +140,27 @@ describe Contain::Host do
   end
   
   it "does not bridge ivars between contained objects" do
-    comp_foo
-    comp_bar
+    part_foo
+    part_bar
     
-    comp_foo.instance_variable_get(:@ivar).should eq nil
-    comp_bar.instance_variable_get(:@ivar).should eq nil
+    part_foo.instance_variable_get(:@ivar).should eq nil
+    part_bar.instance_variable_get(:@ivar).should eq nil
     
-    comp_foo.instance_variable_set(:@ivar, 55)
-    comp_foo.instance_variable_get(:@ivar).should eq 55
-    comp_bar.instance_variable_get(:@ivar).should eq nil
+    part_foo.instance_variable_set(:@ivar, 55)
+    part_foo.instance_variable_get(:@ivar).should eq 55
+    part_bar.instance_variable_get(:@ivar).should eq nil
     
-    comp_bar.instance_variable_set(:@ivar, 999)
-    comp_foo.instance_variable_get(:@ivar).should eq 55
-    comp_bar.instance_variable_get(:@ivar).should eq 999
+    part_bar.instance_variable_set(:@ivar, 999)
+    part_foo.instance_variable_get(:@ivar).should eq 55
+    part_bar.instance_variable_get(:@ivar).should eq 999
   end
   
 end
 
 
-describe Contain::Component do
+describe Contain::Part do
   
-  subject { Contain::Component.new parent, mod }
+  subject { Contain::Part.new parent, mod }
   let(:parent) { Object.new }
   let(:mod) { module Mod; def foo(*args) end end; Mod }
   
