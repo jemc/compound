@@ -29,12 +29,13 @@ module Contain
   
   module Guard
     def self.warn_about obj
-      warn "WARNING"
-      warn "#{obj} is intended only for use in a Contain::Component."
-      warn "Please use Contain::Host#contain instead of #extend or #include."
-      warn ""
+      warn "WARNING\n"\
+           "#{obj} is intended only for use in a Contain::Component.\n"\
+           "Please use Contain::Host#contain instead of #extend or #include.\n"\
+           "\n"
     end
     
+    # @api private
     def self.guard mod
       mod.send :define_method, :extended do |obj|
         ::Contain::Guard.warn_about self unless obj.is_a? ::Contain::Component
