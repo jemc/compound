@@ -1,6 +1,8 @@
 
 require 'contain'
 
+require 'spec_helper'
+
 
 describe Contain::Component do
   
