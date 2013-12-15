@@ -5,6 +5,7 @@ module Contain
     def contain mod
       @_contain_host_parts ||= []
       @_contain_host_parts.unshift ::Contain::Component.new self, mod
+      mod.contained(self) if mod.respond_to? :contained
     end
     
     def method_missing sym, *args, &block

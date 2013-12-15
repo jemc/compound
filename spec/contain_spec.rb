@@ -30,6 +30,11 @@ describe Contain::Host do
     contained.should match_array [comp_foo, comp_bar]
   end
   
+  it "calls the .contained method of the module if it is defined" do
+    mod_foo.should_receive(:contained).with(subject)
+    comp_foo
+  end
+  
   it "forwards methods to the contained objects which respond_to them" do
     comp_foo.should_receive(:foo).with *args, &proc_arg
     comp_bar.should_receive(:bar).with *args.reverse, &proc_arg
