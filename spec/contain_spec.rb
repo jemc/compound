@@ -9,8 +9,8 @@ describe Contain::Host do
   let(:subject)  { Object.new.extend Contain::Host }
   let(:contained) { subject.instance_variable_get :@_contain_host_parts }
   
-  let(:mod_foo)  { module Foo; def foo(*args) 'foo' end end; Foo }
-  let(:mod_bar)  { module Bar; def bar(*args) 'bar' end end; Bar }
+  let(:mod_foo)  { Module.new.tap{|m| m.class_eval{ def foo(*args) 'foo' end }}}
+  let(:mod_bar)  { Module.new.tap{|m| m.class_eval{ def bar(*args) 'bar' end }}}
   
   let(:comp_foo) { subject.contain mod_foo
                     contained.detect{|x| x.respond_to? :foo } }
@@ -77,15 +77,77 @@ describe Contain::Host do
     comp_foo
     
     subject.foo.should eq 'foo'
-    ->{subject.other}.should raise_error
+    ->{subject.other}.should raise_error NoMethodError
     
     mod_foo.class_eval do
       remove_method :foo
       def other(*args) 'other' end
     end
     
-    ->{subject.foo}.should raise_error
+    ->{subject.foo}.should raise_error NoMethodError
     subject.other.should eq 'other'
+  end
+  
+  it "forwards to the more recently contained object when methods conflict" do
+    comp_foo
+    comp_bar
+    mod_bar.class_eval { def foo(*args) 'bar_foo' end }
+    
+    subject.foo.should eq 'bar_foo'
+  end
+  
+  it "does not know about private methods of contained objects" do
+    comp_foo
+    mod_foo.class_eval { private; def private_method; end }
+    
+    ->{subject.private_method}.should raise_error NoMethodError
+  end
+  
+  it "allows contained objects implicit access to eachother's public methods" do
+    comp_foo
+    comp_bar
+    mod_bar.class_eval { def other(*args) foo end }
+    
+    subject.other.should eq 'foo'
+  end
+  
+  it "does not intersend the private methods of contained objects" do
+    comp_foo
+    comp_bar
+    mod_foo.class_eval { def foo(*args) private_foo end }
+    mod_bar.class_eval { def bar(*args) private_foo end }
+    mod_foo.class_eval { private; def private_foo(*args) 'priv_foo' end }
+    
+    subject.foo.should eq 'priv_foo'
+    ->{subject.bar}.should raise_error NoMethodError
+  end
+  
+  it "allows contained objects to all have their own version of a private method" do
+    comp_foo
+    comp_bar
+    mod_foo.class_eval { def foo(*args) private_meth end }
+    mod_bar.class_eval { def bar(*args) private_meth end }
+    mod_foo.class_eval { private; def private_meth(*args) 'priv_foo' end }
+    mod_bar.class_eval { private; def private_meth(*args) 'priv_bar' end }
+    
+    subject.foo.should eq 'priv_foo'
+    subject.bar.should eq 'priv_bar'
+  end
+  
+  it "does not bridge ivars between contained objects" do
+    comp_foo
+    comp_bar
+    
+    comp_foo.instance_variable_get(:@ivar).should eq nil
+    comp_bar.instance_variable_get(:@ivar).should eq nil
+    
+    comp_foo.instance_variable_set(:@ivar, 55)
+    comp_foo.instance_variable_get(:@ivar).should eq 55
+    comp_bar.instance_variable_get(:@ivar).should eq nil
+    
+    comp_bar.instance_variable_set(:@ivar, 999)
+    comp_foo.instance_variable_get(:@ivar).should eq 55
+    comp_bar.instance_variable_get(:@ivar).should eq 999
   end
   
 end
