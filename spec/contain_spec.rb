@@ -7,19 +7,28 @@ require 'spec_helper'
 describe Contain::Host do
   
   let(:subject)  { Object.new.extend Contain::Host }
+  let(:contained) { subject.instance_variable_get :@_contain_host_parts }
   
   let(:mod_foo)  { module Foo; def foo(*args) 'foo' end end; Foo }
   let(:mod_bar)  { module Bar; def bar(*args) 'bar' end end; Bar }
   
-  let!(:comp_foo) { subject.contain mod_foo
+  let(:comp_foo) { subject.contain mod_foo
                     contained.detect{|x| x.respond_to? :foo } }
-  let!(:comp_bar) { subject.contain mod_bar
+  let(:comp_bar) { subject.contain mod_bar
                     contained.detect{|x| x.respond_to? :bar } }
-  
-  let(:contained) { subject.instance_variable_get :@_contain_host_parts }
   
   let(:args) { [1,2,3,kw:5,kw2:6] }
   let(:proc_arg) { Proc.new{nil} }
+  
+  it "can contain modules" do
+    comp_foo.singleton_class.ancestors.should include mod_foo
+    comp_bar.singleton_class.ancestors.should include mod_bar
+    
+    comp_foo.should be_a Contain::Component
+    comp_bar.should be_a Contain::Component
+    
+    contained.should match_array [comp_foo, comp_bar]
+  end
   
   it "forwards methods to the contained objects which respond_to them" do
     comp_foo.should_receive(:foo).with *args, &proc_arg
@@ -37,6 +46,8 @@ describe Contain::Host do
   end
   
   it "pretends to respond_to methods which it does not actually define" do
+    comp_foo
+    comp_bar
     subject.define_singleton_method(:container_method) { |*args| }
     
     subject.methods.should_not include :foo
@@ -48,6 +59,18 @@ describe Contain::Host do
     subject.should     respond_to :bar
     subject.should     respond_to :container_method
     subject.should_not respond_to :undefined
+  end
+  
+  it "can retrieve the method object for its forwarded methods" do
+    comp_foo
+    comp_bar
+    subject.define_singleton_method(:container_method) { |*args| }
+    
+    subject.method(:foo)             .owner.should eq mod_foo
+    subject.method(:bar)             .owner.should eq mod_bar
+    subject.method(:container_method).owner.should eq subject.singleton_class
+    
+    ->{subject.method(:undefined)}.should raise_error NameError, /undefined method/
   end
   
 end

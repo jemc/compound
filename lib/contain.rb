@@ -17,6 +17,14 @@ module Contain
       super || !!(@_contain_host_parts && 
                   @_contain_host_parts.detect { |obj| obj.respond_to? sym })
     end
+    
+    def method sym
+      return super if methods.include? sym
+      component = @_contain_host_parts && 
+                  @_contain_host_parts.detect { |obj| obj.respond_to? sym }
+      component ? component.method(sym) :
+        raise(NameError, "undefined method `#{sym}' for object `#{self}'")
+    end
   end
   
   
