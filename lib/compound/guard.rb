@@ -1,12 +1,12 @@
 
-module Contain
+module Compound
   
   # @api private
   module BaseGuardMethods
     def warn_about obj
       warn "WARNING\n"\
-           "#{obj} is intended only for use in a Contain::Part.\n"\
-           "Please use Contain::Host#contain instead of #extend or #include.\n"\
+           "#{obj} is intended only for use in a Compound::Part.\n"\
+           "Please use Compound::Host#compound instead of #extend or #include.\n"\
            "\n"
     end
     
@@ -22,10 +22,10 @@ module Contain
     # @api private
     def self.guard mod
       mod.define_singleton_method :extended do |obj|
-        ::Contain::Guard.warn_about self unless obj.is_a? ::Contain::Part
+        ::Compound::Guard.warn_about self unless obj.is_a? ::Compound::Part
       end
       mod.define_singleton_method :included do |_|
-        ::Contain::Guard.warn_about self
+        ::Compound::Guard.warn_about self
       end
     end
   end
@@ -36,8 +36,8 @@ module Contain
     
     # @api private
     def self.guard mod
-      mod.define_singleton_method :contained do |_|
-        ::Contain::GuardAgainst.warn_about self
+      mod.define_singleton_method :compounded do |_|
+        ::Compound::GuardAgainst.warn_about self
       end
     end
   end

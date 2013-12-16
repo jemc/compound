@@ -1,6 +1,6 @@
 require 'rspec/core/rake_task'
 
-gemname = 'contain'
+gemname = 'compound'
 
 task :default => :spec
 

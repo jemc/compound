@@ -1,9 +1,9 @@
 
 Gem::Specification.new do |s|
-  s.name          = 'contain'
+  s.name          = 'compound'
   s.version       = '0.0.1'
   s.date          = '2013-12-15'
-  s.summary       = "contain"
+  s.summary       = "compound"
   s.description   = "A new paradigm for mixing objects in Ruby."
   s.authors       = ["Joe McIlvain"]
   s.email         = 'joe.eli.mac@gmail.com'
@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.files         = Dir["{lib}/**/*.rb", "bin/*", "LICENSE", "*.md"]
   
   s.require_path  = 'lib'
-  s.homepage      = 'https://github.com/jemc/contain/'
+  s.homepage      = 'https://github.com/jemc/compound/'
   s.licenses      = 'MIT License'
   
   s.add_development_dependency 'rake'
