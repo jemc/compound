@@ -6,7 +6,7 @@ require 'spec_helper'
 
 shared_examples "a compound host" do
   
-  let(:compounded) { subject.instance_variable_get :@_compound_host_parts }
+  let(:compounded) { subject.instance_variable_get :@_compound_parts }
   
   let(:mod_foo)  { Module.new.tap{|m| m.class_eval{ def foo(*args) 'foo' end }}}
   let(:mod_bar)  { Module.new.tap{|m| m.class_eval{ def bar(*args) 'bar' end }}}
