@@ -135,3 +135,58 @@ This is the chief advantage to using `#compound` instead of `#extend`.
 The modules need no longer worry about avoiding namespace collisions in
 private behaviour.  This leads to fewer mixing compatibility issues among 
 modules that may not necessarily be versioned in relation to one another.
+
+
+# Defining Modules for Compounding
+
+Some points to keep in mind when defining a module specifically for compounding:
+
+- Public methods are 'shared' and should be considered the 'interface' to 
+  your module; this interface should remain well-documented and versioned.
+- Private methods are defined only in support of the module,
+  and because they are not shared, they are free to change and rearrange
+  without worry of namespace collisions with methods of the extended objects
+  or about other object methods depending on the use of them.
+- Instance variables are also not shared, neither among modules nor between
+  compounded module and host.  However, when accessors are defined for them
+  the accessors are part of the public interface along with other 
+  public methods, and should be treated as such.
+
+Because the mechanism of compounding uses a module somewhat differently 
+from how it is used in the traditional inclusion/extension mechanism, 
+one might want to ensure that the module is used correctly.
+If `Compound::Guard` is `include`d in a module, it will `warn` the user 
+if that module is `include`d or `extend`ed instead of `compound`ed. 
+
+``` ruby
+  module CompoundOnly
+    include Compound::Guard
+  end
+  
+  module OtherModule
+    include CompoundOnly          #=> warns the user
+  end
+  
+  Object.new.extend CompoundOnly  #=> warns the user
+  
+  host.compound CompoundOnly      #=> intended usage, no warning
+```
+
+Inversely, one might wish to ensure that a module intended to be used
+traditionally is not used in compounding.
+If `Compound::GuardAgainst` is `include`d in a module, 
+it will `warn` the user if that module is `compound`ed. 
+
+``` ruby
+  module TraditionalModule
+    include Compound::GuardAgainst
+  end
+  
+  module OtherModule
+    include TraditionalModule          #=> intended usage, no warning
+  end
+  
+  Object.new.extend TraditionalModule  #=> intended usage, no warning
+  
+  host.compounds TraditionalModule     #=> warns the user
+```
