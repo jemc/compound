@@ -107,7 +107,8 @@ For example, private methods and instance variables are not shared among them.
   end
   
   host.overcome_by_beauty #=> call to :weep raises NoMethodError
-  
+```
+``` ruby
   module Joy
     attr_accessor :value
   end
