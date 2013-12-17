@@ -1,20 +1,23 @@
 
-{Compound} provides a mechanism for mixing together modules into an object 
+Compound provides a mechanism for mixing together modules into an object 
 while maintaining some degree of separation to help avoid namespace collisions.
 
-= Object Creation
+# Object Creation
 
-An instance of a class that includes the {Compound::Host} module gains 
-the ability to host one or more {Compound::Part}s within it.
+An instance of a class that includes the `Compound::Host` module gains 
+the ability to host one or more `Compound::Part`s within it.
 
+``` ruby
   class ManyFacedObject
     include Compound::Host
   end
+```
 
-A {Compound::Part} is constructed within the {Compound::Host} when {Compound::Host#compound} is called.
-The new {Compound::Part} is an object +#extend+ed by the module passed to {Compound::Host#compound}.
-Any number of modules can be {Compound::Host#compound}ed into the {Compound::Host}.
+A `Part` is constructed within the `Host` when `#compound` is called.
+The new `Part` is an object `#extend`ed by the module passed to `#compound`.
+Any number of modules can be `#compound`ed into the `Host`.
 
+``` ruby
   module Anger;  end
   module Sorrow; end
   module Joy;    end
@@ -23,16 +26,17 @@ Any number of modules can be {Compound::Host#compound}ed into the {Compound::Hos
   host.compound Anger
   host.compound Sorrow
   host.compound Joy
+```
 
+# Method Forwarding
 
-= Method Forwarding
-
-If a method is called on the {Compound::Host} which is not defined by the {Compound::Host}, but
-is defined by one of the {Compound::Host#compound}ed modules, the method and arguments 
-will be forwarded to the internal {Compound::Part} object associated with that module.
+If a method is called on the `Host` which is not defined by the `Host`, but
+is defined by one of the `#compound`ed modules, the method and arguments 
+will be forwarded to the internal `Part` object associated with that module.
 If more than one module defines the method, it will be forwarded to the one
-which was most recently {Compound::Host#compound}ed.
+which was most recently `#compound`ed.
 
+``` ruby
   host.countenance #=> raises NoMethodError
   
   module Anger
@@ -58,13 +62,14 @@ which was most recently {Compound::Host#compound}ed.
   end
   
   host.countenance #=> :grin  # Joy also shadows Sorrow because Joy was compounded later
+```
 
-
-{Compound::Part} objects will also forward unknown methods back to the {Compound::Host}, 
-allowing methods of a {Compound::Host#compound}ed module to call public methods 
-of the other {Compound::Host#compound}ed modules or of the {Compound::Host} itself "natively" 
+`Part` objects will also forward unknown methods back to the `Host`, 
+allowing methods of a `#compound`ed module to call public methods 
+of the other `#compound`ed modules or of the `Host` itself "natively" 
 (without specifying an explicit receiver).
 
+``` ruby
   module Anger
     def shout(msg)
       msg.upcase + '!'
@@ -78,15 +83,16 @@ of the other {Compound::Host#compound}ed modules or of the {Compound::Host} itse
   end
   
   host.exclaim #=> 'HOORAY!'
+```
 
+# Privacy
 
-= Privacy
-
-Due to this forwarding of methods, the {Compound::Host} appears to an outside object
-as if all of the {Compound::Host#compound}ed modules were mixed into it with +#extend+.
+Due to this forwarding of methods, the `Host` appears to an outside object
+as if all of the `#compound`ed modules were mixed into it with `#extend`.
 However, the modules' private parts remain partitioned from one another.
 For example, private methods and instance variables are not shared among them.
 
+``` ruby
   module Sorrow
     private
     def weep
@@ -122,9 +128,9 @@ For example, private methods and instance variables are not shared among them.
   host.value          #=> nil  # @value retrieved from Joy
   host.value = 999    #=> 999  # @value stored in Joy
   host.recall         #=> 88   # @value retrieved from Anger
+```
 
-
-This is the chief advantage to using {Compound::Host#compound} instead of +#extend+.
+This is the chief advantage to using `#compound` instead of `#extend`.
 The modules need no longer worry about avoiding namespace collisions in
 private behaviour.  This leads to fewer mixing compatibility issues among 
 modules that may not necessarily be versioned in relation to one another.
