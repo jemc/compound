@@ -1,0 +1,7 @@
+\.gem$
+
+^doc/
+^.yardoc/
+
+\.sublime-project$
+\.sublime-workspace$

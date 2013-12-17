@@ -2,7 +2,7 @@ require 'rspec/core/rake_task'
 
 gemname = 'compound'
 
-task :default => :spec
+task :default => :doc
 
 # Run rspec tests
 RSpec::Core::RakeTask.new :spec do |c|
