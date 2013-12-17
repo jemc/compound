@@ -4,7 +4,8 @@ require 'compound'
 require 'spec_helper'
 
 
-shared_examples "a compound host" do
+describe Compound::Host do
+  let(:subject)  { Object.new.extend Compound::Host }
   
   let(:compounded) { subject.instance_variable_get :@_compound_parts }
   
@@ -154,15 +155,4 @@ shared_examples "a compound host" do
     part_bar.instance_variable_get(:@ivar).should eq 999
   end
   
-end
-
-
-describe Compound::Host do
-  it_behaves_like "a compound host"
-end
-
-
-describe Compound::Hosting do
-  let(:subject)  { Object.new.extend Compound::Hosting }
-  it_behaves_like "a compound host"
 end

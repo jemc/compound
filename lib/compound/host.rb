@@ -1,7 +1,7 @@
 
 module Compound
   
-  module Hosting
+  module Host
     def compound mod
       @_compound_parts ||= []
       @_compound_parts.unshift ::Compound::Part.new self, mod
@@ -26,10 +26,6 @@ module Compound
       component ? component.method(sym) :
         raise(NameError, "undefined method `#{sym}' for object `#{self}'")
     end
-  end
-  
-  class Host
-    include Hosting
   end
   
 end

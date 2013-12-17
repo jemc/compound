@@ -32,7 +32,7 @@ end
 describe Compound::GuardAgainst do
   
   let(:guarded) { module Guarded; include Compound::GuardAgainst end; Guarded }
-  let(:obj) { Object.new.extend Compound::Hosting }
+  let(:obj) { Object.new.extend Compound::Host }
   let(:mod) { Module.new }
   
   it "warns when you try to compound with a guarded object" do
