@@ -42,6 +42,13 @@ describe Compound::Host do
     compounded.should match_array [part_foo, part_bar]
   end
   
+  it "can uncompound a module" do
+    subject.compound mod_foo
+    compounded.should match_array [part_foo]
+    subject.uncompound mod_foo
+    compounded.should match_array []
+  end
+  
   it "calls the .compounded method of the module if it is defined" do
     mod_foo.should_receive(:compounded).with(subject)
     part_foo
