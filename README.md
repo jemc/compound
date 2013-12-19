@@ -2,7 +2,7 @@
 Compound provides a mechanism for mixing together modules into an object 
 while maintaining some degree of separation to help avoid namespace collisions.
 
-# Object Creation
+# Compounding
 
 An instance of a class that includes the `Compound::Host` module gains 
 the ability to host one or more `Compound::Part`s within it.
@@ -137,6 +137,18 @@ This is the chief advantage to using `#compound` instead of `#extend`.
 The modules need no longer worry about avoiding namespace collisions in
 private behaviour.  This leads to fewer mixing compatibility issues among 
 modules that may not necessarily be versioned in relation to one another.
+
+
+# Uncompounding
+
+As luck would have it, a module can be `#uncompound`ed just as simply 
+as it was `#compound`ed.
+
+``` ruby
+  host.uncompound Anger
+  host.uncompound Sorrow
+  #=> only Joy remains!
+```
 
 
 # Defining Modules for Compounding
