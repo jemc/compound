@@ -30,6 +30,18 @@ describe Compound::Host do
     compounded.should match_array [part_foo, part_bar]
   end
   
+  it "compounds at most one part for each given module" do
+    subject.compound mod_foo
+    subject.compound mod_foo
+    subject.compound mod_bar
+    subject.compound mod_foo
+    subject.compound mod_bar
+    subject.compound mod_bar
+    subject.compound mod_foo
+    
+    compounded.should match_array [part_foo, part_bar]
+  end
+  
   it "calls the .compounded method of the module if it is defined" do
     mod_foo.should_receive(:compounded).with(subject)
     part_foo
@@ -93,12 +105,20 @@ describe Compound::Host do
     subject.other.should eq 'other'
   end
   
-  it "forwards to the more recently compounded object when methods conflict" do
+  it "forwards to the more recently compounded module when methods conflict" do
     part_foo
     part_bar
     mod_bar.class_eval { def foo(*args) 'bar_foo' end }
     
     subject.foo.should eq 'bar_foo'
+  end
+  
+  it "updates the 'order' of priority when a module is compounded again" do
+    part_foo
+    part_bar
+    subject.compound mod_foo
+    
+    subject.foo.should eq 'foo'
   end
   
   it "does not know about private methods of compounded objects" do
