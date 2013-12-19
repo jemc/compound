@@ -6,9 +6,10 @@ module Compound
       @_compound_component_parent.send sym, *args, &block
     end
     
-    def initialize parent, component_module
+    def initialize parent, mod
       @_compound_component_parent = parent
-      extend component_module
+      extend mod
+      compounded(parent) if mod.instance_methods.include? :compounded
     end
   end
   

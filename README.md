@@ -8,6 +8,8 @@ An instance of a class that includes the `Compound::Host` module gains
 the ability to host one or more `Compound::Part`s within it.
 
 ``` ruby
+  require 'compound'
+  
   class ManyFacedObject
     include Compound::Host
   end
@@ -143,10 +145,12 @@ Some points to keep in mind when defining a module specifically for compounding:
 
 - Public methods are 'shared' and should be considered the 'interface' to 
   your module; this interface should remain well-documented and versioned.
+
 - Private methods are defined only in support of the module,
   and because they are not shared, they are free to change and rearrange
   without worry of namespace collisions with methods of the extended objects
   or about other object methods depending on the use of them.
+
 - Instance variables are also not shared, neither among modules nor between
   compounded module and host.  However, when accessors are defined for them
   the accessors are part of the public interface along with other 
@@ -188,5 +192,26 @@ it will `warn` the user if that module is `compound`ed.
   
   Object.new.extend TraditionalModule  #=> intended usage, no warning
   
-  host.compounds TraditionalModule     #=> warns the user
+  host.compound TraditionalModule      #=> warns the user
+```
+
+
+# Initialization of Modules
+
+Sometimes, a module might want to know that it has been compounded so that it
+can initialize its internal state.  Traditional module composition will call
+the `extended` or `self.included` methods if they are defined by the module.
+However, modules intended for compounding should define a `compounded` method
+instead, to be called upon creation of the `Host`'s internal `Part` object.
+
+``` ruby
+  module Paint
+    def compounded
+      @color = :royal_blue
+    end
+    attr_accessor :color
+  end
+  
+  host.compound Paint
+  host.color          #=> :royal_blue
 ```

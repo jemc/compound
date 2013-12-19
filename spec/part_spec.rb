@@ -27,4 +27,12 @@ describe Compound::Part do
     subject.bar *args, &proc_arg
   end
   
+  it "calls the #compounded method upon creation if defined by the module" do
+    saved_test, $test = $test, double
+    $test.should_receive(:test)
+    mod.class_eval { def compounded(parent); $test.test end }
+    subject
+    $test = saved_test
+  end
+  
 end
