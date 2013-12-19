@@ -30,6 +30,11 @@ describe Compound::Host do
     compounded.should match_array [part_foo, part_bar]
   end
   
+  it "returns the module given when it gets compounded" do
+    retval = subject.compound mod_foo
+    retval.should eq mod_foo
+  end
+  
   it "compounds at most one part for each given module" do
     subject.compound mod_foo
     subject.compound mod_foo
@@ -47,6 +52,21 @@ describe Compound::Host do
     compounded.should match_array [part_foo]
     subject.uncompound mod_foo
     compounded.should match_array []
+  end
+  
+  it "returns the module given when uncompound successfully removes a part" do
+    subject.compound mod_foo
+    retval = subject.uncompound mod_foo
+    retval.should eq mod_foo
+  end
+  
+  it "returns nil when uncompound can't find a matching part to remove" do
+    retval = subject.uncompound mod_foo
+    retval.should eq nil
+    
+    subject.compound mod_bar
+    retval = subject.uncompound mod_foo
+    retval.should eq nil
   end
   
   it "calls the .compounded method of the module if it is defined" do

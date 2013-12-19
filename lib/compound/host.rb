@@ -13,11 +13,13 @@ module Compound
       uncompound mod
       @_compound_parts.unshift ::Compound::Part.new self, mod
       mod.compounded(self) if mod.respond_to? :compounded
+      return mod
     end
     
     # Remove the Part associated with the given module
     def uncompound mod
-      @_compound_parts.reject! { |part| part.is_a? mod }
+      (@_compound_parts &&
+      (@_compound_parts.reject! { |part| part.is_a? mod } ? mod : nil))
     end
     
     # Forward an undefined method if it is in one of the Parts
