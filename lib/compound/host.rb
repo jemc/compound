@@ -4,6 +4,7 @@ module Compound
   module Host
     def compound mod
       @_compound_parts ||= []
+      @_compound_parts.reject! { |part| part.is_a? mod }
       @_compound_parts.unshift ::Compound::Part.new self, mod
       mod.compounded(self) if mod.respond_to? :compounded
     end
