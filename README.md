@@ -215,10 +215,11 @@ can initialize its internal state.  Traditional module composition will call
 the `extended` or `self.included` methods if they are defined by the module.
 However, modules intended for compounding should define a `compounded` method
 instead, to be called upon creation of the `Host`'s internal `Part` object.
+The `compounded` method should accept a single argument: the `Host` object.
 
 ``` ruby
   module Paint
-    def compounded
+    def compounded(host)
       @color = :royal_blue
     end
     attr_accessor :color
@@ -226,4 +227,20 @@ instead, to be called upon creation of the `Host`'s internal `Part` object.
   
   host.compound Paint
   host.color          #=> :royal_blue
+```
+
+The `Host` will also pass itself to the `self.compounded` method on the module
+passed to `compound` if the method is defined.
+
+``` ruby
+  module Paint
+    def self.compounded(host)
+      @latest = host
+    end
+    attr_accessor :latest
+  end
+  
+  Paint.latest          #=> nil
+  host.compound Paint
+  Paint.latest == host  #=> true
 ```
