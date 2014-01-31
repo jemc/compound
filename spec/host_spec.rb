@@ -11,11 +11,14 @@ describe Compound::Host do
   
   let(:mod_foo)  { Module.new.tap{|m| m.class_eval{ def foo(*args) 'foo' end }}}
   let(:mod_bar)  { Module.new.tap{|m| m.class_eval{ def bar(*args) 'bar' end }}}
+  let(:mod_baz)  { Module.new.tap{|m| m.class_eval{ def baz(*args) 'baz' end }}}
   
   let(:part_foo) { subject.compound mod_foo
                     compounded.detect{|x| x.respond_to? :foo } }
   let(:part_bar) { subject.compound mod_bar
                     compounded.detect{|x| x.respond_to? :bar } }
+  let(:part_baz) { subject.compound mod_baz
+                    compounded.detect{|x| x.respond_to? :baz } }
   
   let(:args) { [1,2,3,kw:5,kw2:6] }
   let(:proc_arg) { Proc.new{nil} }
@@ -206,8 +209,10 @@ describe Compound::Host do
     local_args = args
     part_foo
     part_bar
-    mod_foo.class_eval { private; def priv(*args) expect *args end }
-    mod_bar.class_eval { private; def priv(*args) expect *args end }
+    part_baz
+    mod_foo.class_eval { private; def priv(*args) expect *args; 33 end }
+    mod_bar.class_eval {          def priv(*args) expect *args; 44 end }
+    mod_baz.class_eval {} # Don't define the method here; it will be skipped
     subject.define_singleton_method(:call_each_private) \
       { send_to_parts :priv, *local_args }
     
@@ -216,7 +221,7 @@ describe Compound::Host do
     
     subject.should_receive(:expect).with(*local_args).twice
     
-    subject.call_each_private.should eq nil
+    subject.call_each_private.should eq({mod_foo=>33, mod_bar=>44})
   end
   
 end

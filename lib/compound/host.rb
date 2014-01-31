@@ -48,10 +48,13 @@ module Compound
   private
     
     def send_to_parts sym, *args, &block
-      @_compound_parts.each do |part|
-        part.send sym, *args, &block if part.respond_to? sym, true
-      end
-      nil
+      results = @_compound_parts.map do |part|
+        if part.respond_to? sym, true
+          [part.instance_variable_get(:@_compound_component_module),
+           part.send(sym, *args, &block)]
+        end
+      end.compact
+      Hash[results]
     end
     
   end
