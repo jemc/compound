@@ -1,8 +1,8 @@
 
 Gem::Specification.new do |s|
   s.name          = 'compound'
-  s.version       = '0.0.2'
-  s.date          = '2013-12-20'
+  s.version       = '0.0.3'
+  s.date          = '2014-01-31'
   s.summary       = "compound"
   s.description   = "A new paradigm for mixing objects in Ruby."
   s.authors       = ["Joe McIlvain"]
