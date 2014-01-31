@@ -244,3 +244,30 @@ passed to `compound` if the method is defined.
   host.compound Paint
   Paint.latest == host  #=> true
 ```
+
+# Calling a Method on Each Part
+
+Compound::Host has a private method for calling `send` on each of its `Part`
+objects.  Because it uses `send`, it can access both public and private methods
+of each `Part`.  The return values of the methods are collected into a hash
+with the compounded modules as the keys.
+
+``` ruby
+  module RedPaint
+    private
+    def load_brush(intensity)
+      '0x%02x0000' % intensity
+    end
+  end
+  
+  module BluePaint
+    private
+    def load_brush(intensity)
+      '0x0000%02x' % intensity
+    end
+  end
+  
+  host.define_singleton_method(:load_brushes) { send_to_all :load_brush, 0xff }
+  
+  host.load_brushes #=> { RedPaint=>'#ff0000', BluePaint=>'#0000ff' }
+```
