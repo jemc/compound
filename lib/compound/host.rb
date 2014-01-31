@@ -45,6 +45,15 @@ module Compound
         raise(NameError, "undefined method `#{sym}' for object `#{self}'")
     end
     
+  private
+    
+    def send_to_parts sym, *args, &block
+      @_compound_parts.each do |part|
+        part.send sym, *args, &block if part.respond_to? sym, true
+      end
+      nil
+    end
+    
   end
   
 end

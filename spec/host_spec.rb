@@ -202,4 +202,21 @@ describe Compound::Host do
     part_bar.instance_variable_get(:@ivar).should eq 999
   end
   
+  it "has a private method to call send on each part" do
+    local_args = args
+    part_foo
+    part_bar
+    mod_foo.class_eval { private; def priv(*args) expect *args end }
+    mod_bar.class_eval { private; def priv(*args) expect *args end }
+    subject.define_singleton_method(:call_each_private) \
+      { send_to_parts :priv, *local_args }
+    
+    subject.should_not respond_to :send_to_parts
+    subject.private_methods.should include :send_to_parts
+    
+    subject.should_receive(:expect).with(*local_args).twice
+    
+    subject.call_each_private.should eq nil
+  end
+  
 end
