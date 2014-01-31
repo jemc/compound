@@ -47,14 +47,15 @@ module Compound
     
   private
     
+    # A private method to call send on each Compound::Part that defines the
+    # given method, whether publically or privately.  The return values are
+    # collected into a hash with the compounded modules as the keys.
     def send_to_parts sym, *args, &block
-      results = @_compound_parts.map do |part|
-        if part.respond_to? sym, true
-          [part.instance_variable_get(:@_compound_component_module),
-           part.send(sym, *args, &block)]
-        end
-      end.compact
-      Hash[results]
+      @_compound_parts.each_with_object({}) do |part, hash|
+        hash[part.instance_variable_get(:@_compound_component_module)] = \
+          part.send sym, *args, &block \
+            if part.respond_to? sym, true
+      end
     end
     
   end
