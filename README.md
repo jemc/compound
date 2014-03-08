@@ -1,4 +1,7 @@
 
+[![Build Status](https://travis-ci.org/jemc/compound.png)](https://travis-ci.org/jemc/compound)
+[![Gem Version](https://badge.fury.io/rb/compound.png)](http://badge.fury.io/rb/compound)
+
 Compound provides a mechanism for mixing together modules into an object 
 while maintaining some degree of separation to help avoid namespace collisions.
 
