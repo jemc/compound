@@ -19,7 +19,9 @@ module Compound
     # Remove the Part associated with the given module
     def uncompound mod
       (@_compound_parts &&
-      (@_compound_parts.reject! { |part| part.is_a? mod } ? mod : nil))
+      (@_compound_parts.reject! { |part|
+        part.instance_variable_get(:@_compound_component_module) == mod
+      } ? mod : nil))
     end
     
     # Forward an undefined method if it is in one of the Parts

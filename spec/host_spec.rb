@@ -72,6 +72,17 @@ describe Compound::Host do
     retval.should eq nil
   end
   
+  it "only recognizes the compounded module itself when uncompounding" do
+    mod_bar.include mod_foo
+    
+    retval = subject.uncompound mod_foo
+    retval.should eq nil
+    
+    subject.compound mod_bar
+    retval = subject.uncompound mod_foo
+    retval.should eq nil
+  end
+  
   it "calls the .compounded method of the module if it is defined" do
     mod_foo.should_receive(:compounded).with(subject)
     part_foo
