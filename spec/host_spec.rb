@@ -205,6 +205,36 @@ describe Compound::Host do
     part_bar.instance_variable_get(:@ivar).should eq 999
   end
   
+  it "has a private method to enumerate over the parts in order" do
+           part_baz; part_bar; part_foo
+    ary = [part_foo, part_bar, part_baz] # reversed; most recent first
+    
+    subject.should_not respond_to :each_part
+    subject.private_methods.should include :each_part
+    
+    # Enumerate without a block
+    subject.instance_eval { each_part.to_a }.should eq ary
+    
+    # Enumerate with a block
+    subject.instance_eval { a = []; each_part{ |x| a << x }; a }.should eq ary
+  end
+  
+  it "has a private method to enumerate in order with modules as keys" do
+           part_baz; part_bar; part_foo
+    ary = [mod_foo, mod_bar, mod_baz].zip \
+        [part_foo, part_bar, part_baz]
+    
+    subject.should_not respond_to :each_pair
+    subject.private_methods.should include :each_pair
+    
+    # Enumerate without a block
+    subject.instance_eval { each_pair.to_a }.should eq ary
+    
+    # Enumerate with a block
+    subject.instance_eval { a = []; each_pair{ |x| a << x }; a }.should \
+      eq ary
+  end
+  
   it "has a private method to call send on each part" do
     local_args = args
     part_foo; part_bar; part_baz
@@ -222,28 +252,24 @@ describe Compound::Host do
     subject.call_each_private.should eq({mod_foo=>33, mod_bar=>44})
   end
   
-  it "has a private method to enumerate over the parts in order" do
-           part_baz; part_bar; part_foo
-    ary = [part_foo, part_bar, part_baz] # reversed; most recent first
+  it "has a private method to call send on a specific part" do
+    local_args = args
+    part_foo; part_bar; part_baz
+    mod_foo.class_eval { private; def priv2(*args) expect *args; 33 end }
+    mod_bar.class_eval { private; def priv2(*args) expect *args; 44 end }
+    mod_baz.class_eval {} # Don't define the method here; it will be skipped
+    subject.define_singleton_method(:call_private) \
+      { |mod| send_to_part mod, :priv2, *local_args }
     
-    # Enumerate without a block
-    subject.instance_eval { each_part.to_a }.should eq ary
+    subject.should_not respond_to :send_to_part
+    subject.private_methods.should include :send_to_part
     
-    # Enumerate with a block
-    subject.instance_eval { a = []; each_part{ |x| a << x }; a }.should eq ary
-  end
-  
-  it "has a private method to enumerate in order with modules as keys" do
-           part_baz; part_bar; part_foo
-    ary = [mod_foo, mod_bar, mod_baz].zip \
-        [part_foo, part_bar, part_baz]
+    subject.should_receive(:expect).with(*local_args).twice
     
-    # Enumerate without a block
-    subject.instance_eval { each_pair.to_a }.should eq ary
-    
-    # Enumerate with a block
-    subject.instance_eval { a = []; each_pair{ |x| a << x }; a }.should \
-      eq ary
+    subject.call_private(mod_foo).should eq 33
+    subject.call_private(mod_bar).should eq 44
+    expect { subject.call_private(mod_baz) }.to raise_error
+    expect { subject.call_private(Module.new) }.to raise_error ArgumentError
   end
   
 end

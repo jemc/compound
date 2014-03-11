@@ -73,6 +73,17 @@ module Compound
       end
     end
     
+    # A private method to call send on the Compound::Part
+    #   associated with the given module.
+    def send_to_part mod, sym, *args, &block
+      @_compound_parts.each do |part|
+        if part.instance_variable_get(:@_compound_component_module) == mod
+          return part.send sym, *args, &block
+        end
+      end
+      raise ArgumentError, "No Part corresponding to #{mod}"
+    end
+    
   end
   
 end
