@@ -7,7 +7,7 @@ require 'spec_helper'
 describe Compound::Host do
   let(:subject)  { Object.new.extend Compound::Host }
   
-  let(:compounded) { subject.instance_variable_get :@_compound_parts }
+  let(:compounded) { subject.instance_eval { @_compound_parts } }
   
   let(:mod_foo)  { Module.new.tap{|m| m.class_eval{ def foo(*args) 'foo' end }}}
   let(:mod_bar)  { Module.new.tap{|m| m.class_eval{ def bar(*args) 'bar' end }}}
@@ -207,9 +207,7 @@ describe Compound::Host do
   
   it "has a private method to call send on each part" do
     local_args = args
-    part_foo
-    part_bar
-    part_baz
+    part_foo; part_bar; part_baz
     mod_foo.class_eval { private; def priv(*args) expect *args; 33 end }
     mod_bar.class_eval {          def priv(*args) expect *args; 44 end }
     mod_baz.class_eval {} # Don't define the method here; it will be skipped
@@ -222,6 +220,30 @@ describe Compound::Host do
     subject.should_receive(:expect).with(*local_args).twice
     
     subject.call_each_private.should eq({mod_foo=>33, mod_bar=>44})
+  end
+  
+  it "has a private method to enumerate over the parts in order" do
+           part_baz; part_bar; part_foo
+    ary = [part_foo, part_bar, part_baz] # reversed; most recent first
+    
+    # Enumerate without a block
+    subject.instance_eval { each_part.to_a }.should eq ary
+    
+    # Enumerate with a block
+    subject.instance_eval { a = []; each_part{ |x| a << x }; a }.should eq ary
+  end
+  
+  it "has a private method to enumerate in order with modules as keys" do
+           part_baz; part_bar; part_foo
+    ary = [mod_foo, mod_bar, mod_baz].zip \
+        [part_foo, part_bar, part_baz]
+    
+    # Enumerate without a block
+    subject.instance_eval { each_pair.to_a }.should eq ary
+    
+    # Enumerate with a block
+    subject.instance_eval { a = []; each_pair{ |x| a << x }; a }.should \
+      eq ary
   end
   
 end

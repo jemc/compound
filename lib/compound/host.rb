@@ -47,9 +47,24 @@ module Compound
     
   private
     
+    # A private method to enumerate over all of the compound parts,
+    #   in order of compounding, starting with the most recently compounded
+    def each_part &block
+      @_compound_parts.each &block
+    end
+    
+    # A private method to enumerate over all of the compound parts,
+    #   in order of compounding, starting with the most recently compounded,
+    #   returning both the associated module and the part for each
+    def each_pair &block
+      @_compound_parts.map { |part|
+        [part.instance_variable_get(:@_compound_component_module), part]
+      }.each &block
+    end
+    
     # A private method to call send on each Compound::Part that defines the
-    # given method, whether publically or privately.  The return values are
-    # collected into a hash with the compounded modules as the keys.
+    #   given method, whether publically or privately.  The return values are
+    #   collected into a hash with the compounded modules as the keys.
     def send_to_parts sym, *args, &block
       @_compound_parts.each_with_object({}) do |part, hash|
         hash[part.instance_variable_get(:@_compound_component_module)] = \
