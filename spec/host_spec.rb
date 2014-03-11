@@ -73,7 +73,7 @@ describe Compound::Host do
   end
   
   it "only recognizes the compounded module itself when uncompounding" do
-    mod_bar.include mod_foo
+    mod_bar.send :include, mod_foo
     
     retval = subject.uncompound mod_foo
     retval.should eq nil

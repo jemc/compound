@@ -17,7 +17,7 @@ describe Compound::Guard do
   
   it "warns when you try to include with a guarded object" do
     subject.should_receive :warn_about
-    mod.include guarded
+    mod.send :include, guarded
   end
   
   it "can warn about any object" do
