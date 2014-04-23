@@ -9,7 +9,16 @@ module Compound
     
     # Internalize a new Part embodying the given module
     def compound mod
-      @_compound_parts ||= []
+      first_time_array = nil
+      @_compound_parts ||= (first_time_array=[])
+      
+      # Pretend that the compounded modules are in the inheritance tree
+      singleton_class.send :define_singleton_method, :ancestors do
+        super() + first_time_array.map { |part|
+          part.instance_variable_get(:@_compound_component_module)
+        }
+      end if first_time_array
+      
       uncompound mod
       @_compound_parts.unshift ::Compound::Part.new self, mod
       mod.compounded(self) if mod.respond_to? :compounded
@@ -45,6 +54,20 @@ module Compound
                   @_compound_parts.detect { |obj| obj.respond_to? sym }
       component ? component.method(sym) :
         raise(NameError, "undefined method `#{sym}' for object `#{self}'")
+    end
+    
+    # Pretend that the compounded modules are in the inheritance tree
+    def kind_of? mod
+      super or !!(@_compound_parts && @_compound_parts.detect { |part|
+        part.instance_variable_get(:@_compound_component_module) == mod
+      })
+    end
+    
+    # Pretend that the compounded modules are in the inheritance tree
+    def is_a? mod
+      super or !!(@_compound_parts && @_compound_parts.detect { |part|
+        part.instance_variable_get(:@_compound_component_module) == mod
+      })
     end
     
   private

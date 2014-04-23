@@ -216,6 +216,26 @@ describe Compound::Host do
     part_bar.instance_variable_get(:@ivar).should eq 999
   end
   
+  it "pretends that its compounded modules are in its inheritance tree" do
+    part_foo
+    part_bar
+    
+    subject.is_a?(mod_foo).should be
+    subject.is_a?(mod_bar).should be
+    
+    subject.kind_of?(mod_foo).should be
+    subject.kind_of?(mod_bar).should be
+    
+    subject.should be_a mod_foo
+    subject.should be_a mod_bar
+    
+    subject.should be_kind_of mod_foo
+    subject.should be_kind_of mod_bar
+    
+    subject.singleton_class.ancestors.should include mod_foo
+    subject.singleton_class.ancestors.should include mod_bar
+  end
+  
   it "has a private method to enumerate over the parts in order" do
            part_baz; part_bar; part_foo
     ary = [part_foo, part_bar, part_baz] # reversed; most recent first
