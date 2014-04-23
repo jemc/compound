@@ -119,6 +119,10 @@ describe Compound::Host do
     subject.should_not respond_to :undefined
   end
   
+  it "doesn't cause problems with respond_to?(:meth, true)" do
+    subject.respond_to?(:each_part, true).should be
+  end
+  
   it "can retrieve the method object for its forwarded methods" do
     part_foo
     part_bar

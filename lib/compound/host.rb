@@ -41,7 +41,7 @@ module Compound
     end
     
     # Pretend to also respond_to methods in the Parts as well as the Host
-    def respond_to? sym
+    def respond_to? sym, *rest
       super || !!(@_compound_parts && 
                   @_compound_parts.detect { |obj| obj.respond_to? sym })
     end
