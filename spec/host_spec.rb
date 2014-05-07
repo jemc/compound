@@ -307,4 +307,13 @@ describe Compound::Host do
     expect { subject.call_private(Module.new) }.to raise_error ArgumentError
   end
   
+  it "will treat a host with no parts correctly "\
+     "(when @_compound_parts is not yet initialized)" do
+    subject.send(:each_part).to_a.should eq []
+    subject.send(:each_pair).to_a.should eq []
+    subject.send(:send_to_parts, :foo, 1,2,3).should eq ({})
+    expect{subject.send(:send_to_part, mod_foo, :foo, 1,2,3)}.to \
+      raise_error ArgumentError, "No Part corresponding to #{mod_foo}"
+  end
+  
 end
