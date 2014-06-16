@@ -1,6 +1,4 @@
 
-require 'compound'
-
 require 'spec_helper'
 
 
